@@ -24,14 +24,14 @@ None.
 
 This role replaces the PHP value for `sendmail_path` variable in `/etc/php.d/20-mailhog.ini` to `/usr/bin/msmtp --read-recipients -a default`.
 
-Look for captured email in the browser at http://mydomain:1025  (eg: http://my-temp.cldev.io:1025/)
+Look for captured email in the browser at http://mydomain:8025  (eg: http://my-temp.cldev.io:8025/)
 
 On DigitalOcean environment incoming port 1025 must be opened using the following Terraform code:
 
     allow_incoming_ports = [
      {
       protocol         = "tcp"
-      port_range       = "1025"
+      port_range       = "8025"
       source_addresses = ["1.2.3.4/32"]
      },
     ]

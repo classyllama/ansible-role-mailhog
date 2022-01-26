@@ -45,40 +45,14 @@
         var: installed_mailhog_version.stdout
 
     # Install / Update MailHog if necessary
-    - name: Retrieve latest MailHog release data
-      tags: mailhog
-      uri:
-        url: https://api.github.com/repos/mailhog/MailHog/releases/latest
-        headers:
-          Accept: application/vnd.github.v3+json
-        body_format: json
-        follow_redirects: safe
-      register: latest_mailhog_release_data
-
-    - name: Parse latest MailHog version from data
-      tags: mailhog
-      shell: echo "{{ latest_mailhog_release_data.json.tag_name }}" | sed 's/^v\(\([0-9]\{1,\}\.\)*[0-9]*\).*/\1/g'
-      register: latest_mailhog_release_version
-
-    - name: Retrieve MailHog download path
-      tags: mailhog
-      set_fact:
-        latest_mailhog_download_url: "{{ latest_mailhog_release_data.json | community.general.json_query(latest_amd64_asset_query) }}"
-      vars:
-        latest_amd64_asset_query: "assets[?name==`MailHog_linux_amd64`].browser_download_url | [0]"
-      when:
-        - (installed_mailhog_version.skipped is defined and installed_mailhog_version.skipped) or
-          latest_mailhog_release_version.stdout is version(installed_mailhog_version.stdout, '>')
-
-    # Download binaries from GitHub
     - name: Download MailHog binary
       tags: mailhog
       get_url:
-        url: "{{ latest_mailhog_download_url }}"
+        url: "{{ mailhog_binary_url }}"
         dest: "{{ mailhog_install_path }}{{ mailhog_install_name }}"
       when:
         - (installed_mailhog_version.skipped is defined and installed_mailhog_version.skipped) or
-          latest_mailhog_release_version.stdout is version(installed_mailhog_version.stdout, '>')
+          mailhog_version is version(installed_mailhog_version.stdout, '>')
 
     - name: Allow execution of MailHog binary
       tags: mailhog
@@ -141,30 +115,12 @@
       tags: mailhog
       ini_file:
         section: null
-        dest: "{{ php_mailhog_ini_path }}.disabled"
+        dest: "{{ php_mailhog_ini_path }}"
         option: "{{ item.key }}"
         value: "{{ item.value }}"
       with_dict: "{{ php_mailhog_ini }}"
       notify: restart php-fpm
       when:
         - mailhog_ini_stat is not defined or not mailhog_ini_stat.stat.exists
-        - mailhog_ini_disabled_stat is not defined or not mailhog_ini_disabled_stat.stat.exists
-      register: mailhog_ini_created
-
-    - name: Copy disabled mailhog.ini file to enable it
-      tags: mailhog
-      copy:
-          remote_src: true
-          src: "{{ php_mailhog_ini_path }}.disabled"
-          dest: "{{ php_mailhog_ini_path }}"
-      when:
-        - (mailhog_ini_created is defined and not mailhog_ini_created.skipped)
-          or mailhog_ini_disabled_stat.stat.exists
       notify:
           - restart php-fpm
-
-    - name: Remove disabled mailhog ini file
-      tags: mailhog
-      file:
-          path: "{{ php_mailhog_ini_path }}.disabled"
-          state: absent

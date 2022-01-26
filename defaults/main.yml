@@ -2,6 +2,8 @@
 php_mailhog_ini_path: "/etc/php.d/20-mailhog.ini"
 php_mailhog_ini:
   sendmail_path: "/usr/bin/msmtp --read-recipients -a default"
+mailhog_version: 1.0.1
+mailhog_binary_url: "https://github.com/mailhog/MailHog/releases/download/v{{ mailhog_version }}/MailHog_linux_amd64"
 mailhog_install_path: /usr/local/bin/
 mailhog_install_name: MailHog
 msmtp_log_path: /var/log/msmtp.log
