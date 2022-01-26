@@ -116,7 +116,7 @@
       ignore_errors: "{{ ansible_check_mode }}"
 
     # Create the PHP MailHog configuration file if it doesn't exist at all
-    - name: Configure mailhog.ini.disabled
+    - name: Configure mailhog.ini and restart php-fpm
       tags: mailhog
       ini_file:
         section: null
