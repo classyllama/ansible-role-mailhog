@@ -59,6 +59,7 @@
       file:
         path: "{{ mailhog_install_path }}{{ mailhog_install_name }}"
         mode: 0755
+      ignore_errors: "{{ ansible_check_mode }}"
 
     # Configure MailHog as system service
     - name: Check for MailHog system service
@@ -77,6 +78,7 @@
         Description: MailHog
         After: syslog.target network.target
       when: mailhog_service_stat is undefined or not mailhog_service_stat.stat.exists
+      ignore_errors: "{{ ansible_check_mode }}"
 
     - name: Configure MailHog service (Service)
       tags: mailhog
@@ -91,6 +93,7 @@
         StandardOutput: journal
         Restart: on-failure
       when: mailhog_service_stat is undefined or not mailhog_service_stat.stat.exists
+      ignore_errors: "{{ ansible_check_mode }}"
 
     - name: Configure MailHog service (Install)
       tags: mailhog
@@ -102,6 +105,7 @@
       with_dict:
         WantedBy: multi-user.target
       when: mailhog_service_stat is undefined or not mailhog_service_stat.stat.exists
+      ignore_errors: "{{ ansible_check_mode }}"
 
     - name: Enable MailHog system service
       tags: mailhog
@@ -109,6 +113,7 @@
         name: mailhog
         enabled: yes
         state: started
+      ignore_errors: "{{ ansible_check_mode }}"
 
     # Create the PHP MailHog configuration file if it doesn't exist at all
     - name: Configure mailhog.ini.disabled
