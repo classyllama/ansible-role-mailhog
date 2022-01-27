@@ -7,3 +7,4 @@ mailhog_binary_url: "https://github.com/mailhog/MailHog/releases/download/v{{ ma
 mailhog_install_path: /usr/local/bin/
 mailhog_install_name: MailHog
 msmtp_log_path: /var/log/msmtp.log
+mailhog_http_user: qa

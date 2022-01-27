@@ -61,6 +61,17 @@
         mode: 0755
       ignore_errors: "{{ ansible_check_mode }}"
 
+    - name: Generate HTTP password 
+      tags: mailhog
+      shell: "{{ mailhog_install_path }}{{ mailhog_install_name }} bcrypt {{ mailhog_http_password }}"
+      register: mailhog_http_password_hash
+
+    - name: Create password file
+      template:
+        src: mailhog.password.j2
+        dest: /etc/mailhog.password
+        mode: 06404
+
     # Configure MailHog as system service
     - name: Check for MailHog system service
       tags: mailhog
@@ -89,7 +100,7 @@
         value: "{{ item.value }}"
       with_dict:
         Type: simple
-        ExecStart: "{{ mailhog_install_path }}{{ mailhog_install_name }}"
+        ExecStart: "{{ mailhog_install_path }}{{ mailhog_install_name }} -auth-file=/etc/mailhog.password"
         StandardOutput: journal
         Restart: on-failure
       when: mailhog_service_stat is undefined or not mailhog_service_stat.stat.exists
