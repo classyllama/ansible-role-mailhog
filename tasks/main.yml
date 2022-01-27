@@ -64,7 +64,7 @@
     - name: Generate HTTP password 
       tags: mailhog
       shell: "{{ mailhog_install_path }}{{ mailhog_install_name }} bcrypt {{ mailhog_http_password }}"
-      register: mailhog_http_password_hash
+      register: mailhog_http_password_hash.stdout
 
     - name: Create password file
       template:
