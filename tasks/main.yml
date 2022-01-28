@@ -1,11 +1,9 @@
 ---
     - name: Install msmtp
-      tags: mailhog
       yum: 
         name: msmtp
 
     - name: Create msmtp log file (if necessary)
-      tags: mailhog
       file:
         path: "{{ msmtp_log_path }}"
         state: touch
@@ -18,25 +16,21 @@
         mode: 0644
 
     - name: Check for existing mailhog ini file
-      tags: mailhog
       stat:
           path: "{{ php_mailhog_ini_path }}"
       register: mailhog_ini_stat
 
     - name: Check for disabled mailhog ini file
-      tags: mailhog
       stat:
           path: "{{ php_mailhog_ini_path }}.disabled"
       register: mailhog_ini_disabled_stat
 
     - name: Check for existing MailHog binary
-      tags: mailhog
       stat:
         path: "{{ mailhog_install_path }}{{ mailhog_install_name }}"
       register: mailhog_stat
 
     - name: Get current MailHog version (if available)
-      tags: mailhog
       shell: "{{ mailhog_install_path }}{{ mailhog_install_name }} --version | sed 's/^.* \\(\\([0-9]\\{1,\\}\\.\\)*[0-9]*\\)/\\1/'"
       when: mailhog_stat.stat and mailhog_stat.stat.exists
       register: installed_mailhog_version
@@ -46,7 +40,6 @@
 
     # Install / Update MailHog if necessary
     - name: Download MailHog binary
-      tags: mailhog
       get_url:
         url: "{{ mailhog_binary_url }}"
         dest: "{{ mailhog_install_path }}{{ mailhog_install_name }}"
@@ -55,14 +48,12 @@
           mailhog_version is version(installed_mailhog_version.stdout, '>')
 
     - name: Allow execution of MailHog binary
-      tags: mailhog
       file:
         path: "{{ mailhog_install_path }}{{ mailhog_install_name }}"
         mode: 0755
       ignore_errors: "{{ ansible_check_mode }}"
 
     - name: Generate HTTP password 
-      tags: mailhog
       shell: "{{ mailhog_install_path }}{{ mailhog_install_name }} bcrypt {{ mailhog_http_password }}"
       register: mailhog_http_password_hash
 
@@ -74,12 +65,10 @@
 
     # Configure MailHog as system service
     - name: Check for MailHog system service
-      tags: mailhog
       stat:
         path: /etc/systemd/system/mailhog.service
 
     - name: Configure MailHog service (Unit)
-      tags: mailhog
       ini_file:
         section: Unit
         dest: /etc/systemd/system/mailhog.service
@@ -92,7 +81,6 @@
       ignore_errors: "{{ ansible_check_mode }}"
 
     - name: Configure MailHog service (Service)
-      tags: mailhog
       ini_file:
         section: Service
         dest: /etc/systemd/system/mailhog.service
@@ -107,7 +95,6 @@
       ignore_errors: "{{ ansible_check_mode }}"
 
     - name: Configure MailHog service (Install)
-      tags: mailhog
       ini_file:
         section: Service
         dest: /etc/systemd/system/mailhog.service
@@ -119,7 +106,6 @@
       ignore_errors: "{{ ansible_check_mode }}"
 
     - name: Enable MailHog system service
-      tags: mailhog
       service:
         name: mailhog
         enabled: yes
@@ -128,7 +114,6 @@
 
     # Create the PHP MailHog configuration file if it doesn't exist at all
     - name: Configure mailhog.ini and restart php-fpm
-      tags: mailhog
       ini_file:
         section: null
         dest: "{{ php_mailhog_ini_path }}"

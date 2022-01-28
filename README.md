@@ -8,6 +8,7 @@ None.
 
 ## Role Variables
 
+Use `mailhog_http_user`, `mailhog_http_password` to enable HTTP Auth (by default username is set to `qa`).
 See `defaults/main.yml` for details.
 
 ## Dependencies
@@ -17,6 +18,8 @@ None.
 ## Example Playbook
 
     - hosts: all
+      vars:
+        mailhog_http_password: mypass
       roles:
          - { role: classyllama.mailhog, tags: mailhog, when: use_classyllama_mailhog | default(false) }
 
