@@ -120,7 +120,6 @@
         option: "{{ item.key }}"
         value: "{{ item.value }}"
       with_dict: "{{ php_mailhog_ini }}"
-      notify: restart php-fpm
       when:
         - mailhog_ini_stat is not defined or not mailhog_ini_stat.stat.exists
       notify:
